@@ -1,21 +1,21 @@
 // config/db.js
-// Ce fichier gère la connexion à la base de données MySQL.
-// On utilise un "pool" de connexions plutôt qu'une connexion unique
-// car le pool gère plusieurs requêtes simultanées sans saturer MySQL.
+// On utilise "pg" (node-postgres) pour se connecter a PostgreSQL (Supabase)
+// au lieu de mysql2
 
-const mysql = require('mysql2');
+const { Pool } = require('pg');
 require('dotenv').config();
 
-const pool = mysql.createPool({
+const pool = new Pool({
     host:     process.env.DB_HOST,
+    port:     process.env.DB_PORT || 5432,
     user:     process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
 
-    // Nombre maximum de connexions simultanées dans le pool
-    connectionLimit: 10
+    // Supabase necessite SSL en production
+    ssl: process.env.NODE_ENV === 'production'
+        ? { rejectUnauthorized: false }
+        : false
 });
 
-// On exporte la version "promise" du pool pour pouvoir utiliser
-// async/await dans les controllers au lieu des callbacks
-module.exports = pool.promise();
+module.exports = pool;
