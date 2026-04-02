@@ -1,6 +1,6 @@
 // config/db.js
-// On utilise "pg" (node-postgres) pour se connecter a PostgreSQL (Supabase)
-// au lieu de mysql2
+// En production sur Render, Supabase exige SSL obligatoirement.
+// On force rejectUnauthorized a false pour eviter les erreurs de certificat.
 
 const { Pool } = require('pg');
 require('dotenv').config();
@@ -12,10 +12,8 @@ const pool = new Pool({
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
 
-    // Supabase necessite SSL en production
-    ssl: process.env.NODE_ENV === 'production'
-        ? { rejectUnauthorized: false }
-        : false
+    // SSL force en toutes circonstances pour Supabase
+    ssl: { rejectUnauthorized: false }
 });
 
 module.exports = pool;
